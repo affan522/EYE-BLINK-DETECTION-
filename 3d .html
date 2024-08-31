@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D City with Three.js</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        // Basic setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // Create city blocks
+        function createBuilding(width, height, depth) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+            const building = new THREE.Mesh(geometry, material);
+            return building;
+        }
+
+        function createCity(rows, cols) {
+            const cityGroup = new THREE.Group();
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const building = createBuilding(
+                        Math.random() * 5 + 2, // width
+                        Math.random() * 30 + 10, // height
+                        Math.random() * 5 + 2 // depth
+                    );
+                    building.position.set(i * 10, building.geometry.parameters.height / 2, j * 10);
+                    cityGroup.add(building);
+                }
+            }
+            return cityGroup;
+        }
+
+        const city = createCity(10, 10);
+        scene.add(city);
+
+        camera.position.z = 100;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
